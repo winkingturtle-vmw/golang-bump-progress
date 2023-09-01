@@ -1,0 +1,14 @@
+{
+    "releases": [
+        {
+            "name": "diego",
+            "url": "https://github.com/cloudfoundry/diego-release",
+            "golang_package": "golang-1-linux"
+        },
+        {
+            "name": "cf-networking",
+            "url": "https://github.com/cloudfoundry/cf-networking-release",
+            "golang_package": "golang-1.20-linux"
+        }
+    ]
+}

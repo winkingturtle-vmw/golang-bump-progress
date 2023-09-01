@@ -1,0 +1,30 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+div.table-container {
+  margin-top: 100px;
+}
+</style>
+</head>
+<body>
+<div class="container table-container">
+<table class="table">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">Release name</th>
+            <th scope="col">Version on dev</th>
+        <tr>
+    </thead>
+    <tbody>
+        {{range .Releases}}
+        <tr>
+            <td><a href="{{ .URL }}">{{ .Name }}</a></td>
+            <td>{{ .VersionOnDev }}</td>
+        </tr>
+        {{end}}
+    </tbody>
+</table>
+</div>
+</body>
+</html>
