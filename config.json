@@ -1,14 +1,74 @@
 {
     "releases": [
         {
-            "name": "diego",
+            "name": "diego (linux)",
             "url": "https://github.com/cloudfoundry/diego-release",
             "golang_package": "golang-1-linux"
+        },
+        {
+            "name": "diego (windows)",
+            "url": "https://github.com/cloudfoundry/diego-release",
+            "golang_package": "golang-1-windows"
         },
         {
             "name": "cf-networking",
             "url": "https://github.com/cloudfoundry/cf-networking-release",
             "golang_package": "golang-1.20-linux"
+        },
+        {
+            "name": "silk",
+            "url": "https://github.com/cloudfoundry/silk-release",
+            "golang_package": "golang-1.20-linux"
+        },
+        {
+            "name": "garden-runc (linux)",
+            "url": "https://github.com/cloudfoundry/garden-runc-release",
+            "golang_package": "golang-1.20-linux"
+        },
+        {
+            "name": "garden-runc (windows)",
+            "url": "https://github.com/cloudfoundry/garden-runc-release",
+            "golang_package": "golang-1.20-windows"
+        },
+        {
+            "name": "nats",
+            "url": "https://github.com/cloudfoundry/nats-release",
+            "golang_package": "golang-1-linux"
+        },
+        {
+            "name": "routing",
+            "url": "https://github.com/cloudfoundry/routing-release",
+            "golang_package": "golang-1.21-linux"
+        },
+        {
+            "name": "healthchecker",
+            "url": "https://github.com/cloudfoundry/healthchecker-release",
+            "golang_package": "golang-1-linux"
+        },
+        {
+            "name": "winc",
+            "url": "https://github.com/cloudfoundry/winc-release",
+            "golang_package": "golang-1-windows"
+        },
+        {
+            "name": "envoy-nginx",
+            "url": "https://github.com/cloudfoundry/envoy-nginx-release",
+            "golang_package": "golang-1.20-windows"
+        },
+        {
+            "name": "windows2019fs",
+            "url": "https://github.com/cloudfoundry/windows2019fs-release",
+            "golang_package": "golang-1-windows"
+        },
+        {
+            "name": "windowsfs-online",
+            "url": "https://github.com/cloudfoundry/windowsfs-online-release",
+            "golang_package": "golang-1-windows"
+        },
+        {
+            "name": "windows-tools",
+            "url": "https://github.com/cloudfoundry/windows-tools-release",
+            "golang_package": "golang-1-windows"
         }
     ]
 }
