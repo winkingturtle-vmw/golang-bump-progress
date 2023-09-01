@@ -5,16 +5,18 @@ import (
 	"time"
 
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
+	"github.com/cloudfoundry-incubator/golang-bump-progress/version"
 )
 
 const FETCH_INTERVAL = time.Minute
 
 type Release struct {
-	Name                      string
-	URL                       string
-	VersionOnDev              string
-	ReleasedVersion           string
-	FirstReleasedMinorVersion string
+	Name                        string
+	URL                         string
+	VersionOnDev                string
+	ReleasedVersion             string
+	FirstReleasedGolangVersion  string
+	FirstReleasedReleaseVersion string
 }
 
 type TemplateData struct {
@@ -24,7 +26,7 @@ type TemplateData struct {
 type versionFetcher interface {
 	GetDevelopVersion(release config.Release) (string, error)
 	GetReleasedVersion(release config.Release) (string, error)
-	GetFirstReleasedMinorVersion(release config.Release, releasedVersion string) (string, error)
+	GetFirstReleasedVersion(release config.Release, releasedVersion string) (version.VersionInfo, error)
 }
 
 type templateDataProvider struct {
@@ -62,23 +64,24 @@ func (p *templateDataProvider) fetch() TemplateData {
 			log.Printf("failed to get develop version for %s: %s", release.Name, err.Error())
 		}
 
-		var firstReleasedMinorVersion string
+		versionInfo := version.VersionInfo{}
 		releasedVersion, err := p.githubVersion.GetReleasedVersion(release)
 		if err != nil {
 			log.Printf("failed to get released version for %s: %s", release.Name, err.Error())
 		} else {
-			firstReleasedMinorVersion, err = p.githubVersion.GetFirstReleasedMinorVersion(release, releasedVersion)
+			versionInfo, err = p.githubVersion.GetFirstReleasedVersion(release, releasedVersion)
 			if err != nil {
 				log.Printf("failed to get first released minor version for %s: %s", release.Name, err.Error())
 			}
 		}
 
 		data.Releases = append(data.Releases, Release{
-			Name:                      release.Name,
-			URL:                       release.URL,
-			VersionOnDev:              devVersion,
-			ReleasedVersion:           releasedVersion,
-			FirstReleasedMinorVersion: firstReleasedMinorVersion,
+			Name:                        release.Name,
+			URL:                         release.URL,
+			VersionOnDev:                devVersion,
+			ReleasedVersion:             releasedVersion,
+			FirstReleasedGolangVersion:  versionInfo.GolangVersion,
+			FirstReleasedReleaseVersion: versionInfo.ReleaseVersion,
 		})
 	}
 	return data

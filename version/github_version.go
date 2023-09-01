@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
@@ -11,18 +12,32 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type githubVersion struct {
-	githubClient       *github.Client
-	boshPackageVersion *boshPackageVersion
+type NotFoundError struct {
+	err error
+}
 
-	ctx context.Context
+func (e NotFoundError) Error() string {
+	return e.err.Error()
+}
+
+type VersionInfo struct {
+	GolangVersion  string
+	ReleaseVersion string
+}
+
+type githubVersion struct {
+	githubClient          *github.Client
+	boshPackageVersion    *boshPackageVersion
+	firstReleasedVersions map[string]VersionInfo
+	ctx                   context.Context
 }
 
 func NewGithubVersion(ctx context.Context, githubClient *github.Client, boshPackageVersion *boshPackageVersion) *githubVersion {
 	return &githubVersion{
-		githubClient:       githubClient,
-		boshPackageVersion: boshPackageVersion,
-		ctx:                ctx,
+		githubClient:          githubClient,
+		boshPackageVersion:    boshPackageVersion,
+		firstReleasedVersions: map[string]VersionInfo{},
+		ctx:                   ctx,
 	}
 }
 
@@ -42,37 +57,46 @@ func (f *githubVersion) GetReleasedVersion(release config.Release) (string, erro
 	return f.getGolangVersionOnRef(release, publishedReleases[0].GetTagName())
 }
 
-func (f *githubVersion) GetFirstReleasedMinorVersion(release config.Release, releasedVersion string) (string, error) {
-	println("releasedVersion", releasedVersion)
+func (f *githubVersion) GetFirstReleasedVersion(release config.Release, releasedVersion string) (VersionInfo, error) {
 	releasedVersionMajorMinor := majorMinor(releasedVersion)
-	println("minor, major", releasedVersionMajorMinor)
-	publishedReleases, _, err := f.githubClient.Repositories.ListReleases(f.ctx, release.Owner, release.Repo, &github.ListOptions{PerPage: 5})
+	if versionInfo, ok := f.firstReleasedVersions[releaseVersionKey(release.Name, releasedVersionMajorMinor)]; ok {
+		return versionInfo, nil
+	}
+	publishedReleases, _, err := f.githubClient.Repositories.ListReleases(f.ctx, release.Owner, release.Repo, &github.ListOptions{PerPage: 20})
 	if err != nil {
-		return "", err
+		return VersionInfo{}, err
 	}
 	if len(publishedReleases) < 1 {
-		return "", errors.New("no results for published releases")
+		return VersionInfo{}, errors.New("no results for published releases")
 	}
 
-	var firstReleasedMinorVersion string
+	versionInfo := VersionInfo{}
 	for _, publishedRelease := range publishedReleases {
 		golangVersion, err := f.getGolangVersionOnRef(release, publishedRelease.GetTagName())
 		if err != nil {
-			return "", err
+			if _, ok := err.(NotFoundError); ok {
+				f.firstReleasedVersions[releaseVersionKey(release.Name, releasedVersionMajorMinor)] = versionInfo
+				return versionInfo, nil
+			}
+			return VersionInfo{}, err
 		}
-		fmt.Printf("release: %s, golang version: %s, commit: %s\n", publishedRelease.GetName(), golangVersion, publishedRelease.GetTagName())
 		if majorMinor(golangVersion) == releasedVersionMajorMinor {
-			firstReleasedMinorVersion = publishedRelease.GetName()
+			versionInfo.ReleaseVersion = publishedRelease.GetName()
+			versionInfo.GolangVersion = golangVersion
 		} else {
-			return firstReleasedMinorVersion, nil
+			f.firstReleasedVersions[releaseVersionKey(release.Name, releasedVersionMajorMinor)] = versionInfo
+			return versionInfo, nil
 		}
 	}
-	return "", errors.New("failed to find first min version")
+	return VersionInfo{}, errors.New("failed to find first min version")
 }
 
 func (f *githubVersion) getGolangVersionOnRef(release config.Release, ref string) (string, error) {
-	developSpecContent, _, _, err := f.githubClient.Repositories.GetContents(f.ctx, release.Owner, release.Repo, fmt.Sprintf("packages/%s/spec.lock", release.GolangPackage), &github.RepositoryContentGetOptions{Ref: ref})
+	developSpecContent, _, response, err := f.githubClient.Repositories.GetContents(f.ctx, release.Owner, release.Repo, fmt.Sprintf("packages/%s/spec.lock", release.GolangPackage), &github.RepositoryContentGetOptions{Ref: ref})
 	if err != nil {
+		if response.StatusCode == http.StatusNotFound {
+			return "", NotFoundError{err}
+		}
 		return "", err
 	}
 	developSpec, err := developSpecContent.GetContent()
@@ -94,4 +118,8 @@ func (f *githubVersion) getGolangVersionOnRef(release config.Release, ref string
 func majorMinor(version string) string {
 	parts := strings.Split(version, ".")
 	return fmt.Sprintf("%s.%s", parts[0], parts[1])
+}
+
+func releaseVersionKey(releaseName string, version string) string {
+	return fmt.Sprintf("%s-%s", releaseName, version)
 }

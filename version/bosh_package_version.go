@@ -20,7 +20,7 @@ const (
 )
 
 var (
-	FINGERPRINT_PATCH_RE = regexp.MustCompile(`.*\+\s+version:\s(\w+).+`)
+	FINGERPRINT_PATCH_RE = regexp.MustCompile(`.*\+\s+version:\s(\w+)`)
 	BLOB_URL_RE          = regexp.MustCompile(`.+/blob/(\w+)/.+`)
 )
 
@@ -88,14 +88,12 @@ func (v *boshPackageVersion) PopulateCache() error {
 			switch file.GetFilename() {
 			case linuxFingerprintFile:
 				fingerprint, version, err := v.getFingerprintVersionFromPatch(file.GetPatch(), linuxVersionFile, commitSHA)
-				fmt.Printf("linux fingerprint: %#v\n", fingerprint)
 				if err != nil {
 					return err
 				}
 				v.fingerprintsCache[fingerprint] = version
 			case windowsFingerprintFile:
 				fingerprint, version, err := v.getFingerprintVersionFromPatch(file.GetPatch(), windowsVersionFile, commitSHA)
-				fmt.Printf("windows fingerprint: %#v\n", fingerprint)
 				if err != nil {
 					return err
 				}

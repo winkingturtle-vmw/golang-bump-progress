@@ -46,9 +46,6 @@ github.com/google/go-querystring/query
 golang.org/x/crypto/cast5
 golang.org/x/crypto/hkdf
 golang.org/x/crypto/sha3
-# golang.org/x/mod v0.12.0
-## explicit; go 1.17
-golang.org/x/mod/semver
 # golang.org/x/net v0.14.0
 ## explicit; go 1.17
 golang.org/x/net/context
