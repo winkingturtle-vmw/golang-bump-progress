@@ -13,7 +13,9 @@ div.table-container {
     <thead class="thead-light">
         <tr>
             <th scope="col">Release name</th>
-            <th scope="col">Version on dev</th>
+            <th scope="col">Golang version on dev</th>
+            <th scope="col">Released Golang version</th>
+            <th scope="col">First minor version was released in</th>
         <tr>
     </thead>
     <tbody>
@@ -21,6 +23,8 @@ div.table-container {
         <tr>
             <td><a href="{{ .URL }}">{{ .Name }}</a></td>
             <td>{{ .VersionOnDev }}</td>
+            <td>{{ .ReleasedVersion }}</td>
+            <td>{{ .FirstReleasedMinorVersion }}</td>
         </tr>
         {{end}}
     </tbody>
