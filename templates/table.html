@@ -17,6 +17,7 @@ div.table-container {
             <th scope="col">Released Golang version</th>
             <th scope="col">First minor released Golang version</th>
             <th scope="col">Release version with the first minor Golang</th>
+            <th scope="col">Released golang minor in TAS</th>
         <tr>
     </thead>
     <tbody>
@@ -27,6 +28,7 @@ div.table-container {
             <td>{{ .ReleasedVersion }}</td>
             <td>{{ .FirstReleasedGolangVersion }}</td>
             <td>{{ .FirstReleasedReleaseVersion }}</td>
+            <td>{{ .BumpedInTas }}</td>
         </tr>
         {{end}}
     </tbody>

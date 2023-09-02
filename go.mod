@@ -3,6 +3,7 @@ module github.com/cloudfoundry-incubator/golang-bump-progress
 go 1.21
 
 require (
+	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/google/go-github/v54 v54.0.1-0.20230831192718-5ab57e7a69f0
 	golang.org/x/oauth2 v0.11.0
 	gopkg.in/yaml.v2 v2.4.0

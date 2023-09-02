@@ -4,6 +4,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
 	"github.com/cloudfoundry-incubator/golang-bump-progress/version"
 )
@@ -17,6 +18,7 @@ type Release struct {
 	ReleasedVersion             string
 	FirstReleasedGolangVersion  string
 	FirstReleasedReleaseVersion string
+	BumpedInTas                 string
 }
 
 type TemplateData struct {
@@ -29,16 +31,23 @@ type versionFetcher interface {
 	GetFirstReleasedVersion(release config.Release, releasedVersion string) (version.VersionInfo, error)
 }
 
+type tasVersionProvider interface {
+	Fetch(ref string) error
+	GetReleaseVersion(releaseName string) (string, bool)
+}
+
 type templateDataProvider struct {
 	githubVersion versionFetcher
+	tasVersion    tasVersionProvider
 	config        config.Config
 	lastFetchTime time.Time
 	cachedData    TemplateData
 }
 
-func NewTemplateDataProvider(githubVersion versionFetcher, cfg config.Config) *templateDataProvider {
+func NewTemplateDataProvider(githubVersion versionFetcher, tasVersion tasVersionProvider, cfg config.Config) *templateDataProvider {
 	return &templateDataProvider{
 		githubVersion: githubVersion,
+		tasVersion:    tasVersion,
 		config:        cfg,
 	}
 }
@@ -58,31 +67,63 @@ func (p *templateDataProvider) fetch() TemplateData {
 	data := TemplateData{
 		Releases: []Release{},
 	}
+	err := p.tasVersion.Fetch("main")
+	if err != nil {
+		log.Printf("failed to get develop version for %s")
+	}
 	for _, release := range p.config.Releases {
 		devVersion, err := p.githubVersion.GetDevelopVersion(release)
 		if err != nil {
 			log.Printf("failed to get develop version for %s: %s", release.Name, err.Error())
 		}
 
-		versionInfo := version.VersionInfo{}
+		firstVersionInfo := version.VersionInfo{}
 		releasedVersion, err := p.githubVersion.GetReleasedVersion(release)
 		if err != nil {
 			log.Printf("failed to get released version for %s: %s", release.Name, err.Error())
 		} else {
-			versionInfo, err = p.githubVersion.GetFirstReleasedVersion(release, releasedVersion)
+			firstVersionInfo, err = p.githubVersion.GetFirstReleasedVersion(release, releasedVersion)
 			if err != nil {
 				log.Printf("failed to get first released minor version for %s: %s", release.Name, err.Error())
 			}
 		}
+
+		bumpedInTas := p.bumpedInTas(release.Name, firstVersionInfo.ReleaseVersion)
 
 		data.Releases = append(data.Releases, Release{
 			Name:                        release.Name,
 			URL:                         release.URL,
 			VersionOnDev:                devVersion,
 			ReleasedVersion:             releasedVersion,
-			FirstReleasedGolangVersion:  versionInfo.GolangVersion,
-			FirstReleasedReleaseVersion: versionInfo.ReleaseVersion,
+			FirstReleasedGolangVersion:  firstVersionInfo.GolangVersion,
+			FirstReleasedReleaseVersion: firstVersionInfo.ReleaseVersion,
+			BumpedInTas:                 bumpedInTas,
 		})
 	}
 	return data
+}
+func (p *templateDataProvider) bumpedInTas(releaseName string, firstReleaseVersion string) string {
+	releaseTasVersion, found := p.tasVersion.GetReleaseVersion(releaseName)
+	if !found {
+		return "n/a"
+	}
+
+	if firstReleaseVersion == "" {
+		return ""
+	}
+	firstReleaseV, err := semver.NewVersion(firstReleaseVersion)
+	if err != nil {
+		log.Printf("failed to parse release version for %s: %s", releaseName, err.Error())
+		return ""
+	}
+	releaseTasV, err := semver.NewVersion(releaseTasVersion)
+	if err != nil {
+		log.Printf("failed to parse release version for %s: %s", releaseName, err.Error())
+		return ""
+	}
+	if firstReleaseV.LessThan(releaseTasV) {
+		return "yes"
+	}
+
+	return "no"
 }

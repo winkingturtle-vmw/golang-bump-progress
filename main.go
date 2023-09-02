@@ -35,7 +35,8 @@ func main() {
 	}
 
 	githubVersion := version.NewGithubVersion(ctx, githubClient, boshPackageVersion)
-	templateDataProvider := dataprovider.NewTemplateDataProvider(githubVersion, cfg)
+	tasVersion := version.NewTasVersion(ctx, githubClient)
+	templateDataProvider := dataprovider.NewTemplateDataProvider(githubVersion, tasVersion, cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data := templateDataProvider.Get()
