@@ -2,8 +2,8 @@ package version
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"sync"
 
@@ -21,7 +21,6 @@ const (
 
 var (
 	FINGERPRINT_PATCH_RE = regexp.MustCompile(`.*\+\s+version:\s(\w+)`)
-	BLOB_URL_RE          = regexp.MustCompile(`.+/blob/(\w+)/.+`)
 )
 
 type PackageSpec struct {
@@ -53,13 +52,14 @@ func (v *boshPackageVersion) PopulateCache() error {
 	linuxFingerprintFile := fmt.Sprintf(`.final_builds/packages/%s/index.yml`, GOLANG_LINUX_PACKAGE)
 	windowsFingerprintFile := fmt.Sprintf(`.final_builds/packages/%s/index.yml`, GOLANG_WINDOWS_PACKAGE)
 
-	// only pulling commits for Linux, since commits to Linux final.yml also update Windows final.yml
+	log.Println("Populating cache...")
+
 	commitResults, _, err := v.githubClient.Repositories.ListCommits(
 		v.ctx,
 		GOLANG_BOSH_RELEASE_OWNER,
 		GOLANG_BOSH_RELEASE_REPO,
 		&github.CommitsListOptions{
-			Path:        linuxFingerprintFile,
+			Path:        "releases/golang/index.yml",
 			ListOptions: github.ListOptions{PerPage: WARMUP_COMMITS},
 		})
 	if err != nil {
@@ -68,7 +68,6 @@ func (v *boshPackageVersion) PopulateCache() error {
 
 	for _, commitResult := range commitResults {
 		commitSHA := commitResult.GetSHA()
-		fmt.Printf("analyzing commit %s\n", commitSHA)
 		commit, _, err := v.githubClient.Repositories.GetCommit(
 			v.ctx,
 			GOLANG_BOSH_RELEASE_OWNER,
@@ -115,47 +114,75 @@ func (v *boshPackageVersion) GetFingerprintVersion(fingerprint string, golangPac
 	}
 	fmt.Println("not using cache")
 
-	query := fmt.Sprintf("%s repo:%s/%s", fingerprint, GOLANG_BOSH_RELEASE_OWNER, GOLANG_BOSH_RELEASE_REPO)
-
-	searchResult, _, err := v.githubClient.Search.Code(v.ctx, query, nil)
-	if err != nil {
-		return "", err
-	}
-	if searchResult.GetTotal() < 1 {
-		return "", errors.New("no results for bosh package fingerprint")
-	}
-
-	codeResult := searchResult.CodeResults[0]
-	refURL := codeResult.GetHTMLURL()
-	matches := BLOB_URL_RE.FindSubmatch([]byte(refURL))
-	if len(matches) < 2 {
-		return "", errors.New("failed to parse ref")
-	}
-
-	golangVersionRef := string(matches[1])
-
 	versionFile := fmt.Sprintf("packages/%s/version", golangPackage)
-	version, err := v.getFileContentsForRef(versionFile, golangVersionRef)
+	fingerprintFile := fmt.Sprintf(`.final_builds/packages/%s/index.yml`, golangPackage)
+	commitResults, _, err := v.githubClient.Repositories.ListCommits(
+		v.ctx,
+		GOLANG_BOSH_RELEASE_OWNER,
+		GOLANG_BOSH_RELEASE_REPO,
+		&github.CommitsListOptions{
+			Path:        fingerprintFile,
+			ListOptions: github.ListOptions{PerPage: WARMUP_COMMITS},
+		})
 	if err != nil {
 		return "", err
 	}
 
-	v.fingerprintsCache[fingerprint] = version
-	return version, nil
+	for _, commitResult := range commitResults {
+		commitSHA := commitResult.GetSHA()
+		log.Printf("checking commit: %s\n", commitSHA)
+		commit, _, err := v.githubClient.Repositories.GetCommit(
+			v.ctx,
+			GOLANG_BOSH_RELEASE_OWNER,
+			GOLANG_BOSH_RELEASE_REPO,
+			commitSHA,
+			&github.ListOptions{PerPage: FILES_IN_FINAL_RELEASE},
+		)
+		if err != nil {
+			return "", err
+		}
+
+		if len(commit.Files) < 1 {
+			return "", fmt.Errorf("failed to get files for %s", commitSHA)
+		}
+
+		for _, file := range commit.Files {
+			if file.GetFilename() == fingerprintFile {
+				parsedFingerprint := parseFingerprint(file.GetPatch())
+				if parsedFingerprint == fingerprint {
+					version, err := v.getFileContentsForRef(versionFile, commitSHA)
+					if err != nil {
+						return "", err
+					}
+					v.fingerprintsCache[fingerprint] = version
+					return version, nil
+				}
+			}
+		}
+	}
+
+	return "", fmt.Errorf("failed to find version for fingerprint %s", fingerprint)
 }
 
 func (v *boshPackageVersion) getFingerprintVersionFromPatch(patch string, versionFile string, commitSHA string) (string, string, error) {
-	matches := FINGERPRINT_PATCH_RE.FindSubmatch([]byte(patch))
-	if len(matches) < 2 {
+	fingerprint := parseFingerprint(patch)
+	if fingerprint == "" {
 		return "", "", fmt.Errorf("failed to parse patch for sha %s", commitSHA)
 	}
-
-	fingerprint := string(matches[1])
 	version, err := v.getFileContentsForRef(versionFile, commitSHA)
 	if err != nil {
 		return "", "", err
 	}
 	return fingerprint, version, nil
+}
+
+func parseFingerprint(patch string) string {
+	matches := FINGERPRINT_PATCH_RE.FindSubmatch([]byte(patch))
+	if len(matches) < 2 {
+		return ""
+	}
+
+	return string(matches[1])
 }
 
 func (v *boshPackageVersion) getFileContentsForRef(filePath string, ref string) (string, error) {

@@ -1,6 +1,6 @@
 module github.com/cloudfoundry-incubator/golang-bump-progress
 
-go 1.21.0
+go 1.21
 
 require (
 	github.com/google/go-github/v54 v54.0.1-0.20230831192718-5ab57e7a69f0
