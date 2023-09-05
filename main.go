@@ -36,6 +36,10 @@ func main() {
 
 	githubVersion := version.NewGithubVersion(ctx, githubClient, boshPackageVersion)
 	tasVersion := version.NewTasVersion(ctx, githubClient)
+	err = tasVersion.Fetch("main")
+	if err != nil {
+		log.Printf("failed to get TAS versions: %s", err.Error())
+	}
 	templateDataProvider := dataprovider.NewTemplateDataProvider(githubVersion, tasVersion, cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

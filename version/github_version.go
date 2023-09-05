@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
 	"github.com/google/go-github/v54/github"
@@ -58,7 +57,7 @@ func (f *githubVersion) GetReleasedVersion(release config.Release) (string, erro
 }
 
 func (f *githubVersion) GetFirstReleasedVersion(release config.Release, releasedVersion string) (VersionInfo, error) {
-	releasedVersionMajorMinor := majorMinor(releasedVersion)
+	releasedVersionMajorMinor := MajorMinor(releasedVersion)
 	if versionInfo, ok := f.firstReleasedVersions[releaseVersionKey(release.Name, releasedVersionMajorMinor)]; ok {
 		return versionInfo, nil
 	}
@@ -80,7 +79,7 @@ func (f *githubVersion) GetFirstReleasedVersion(release config.Release, released
 			}
 			return VersionInfo{}, err
 		}
-		if majorMinor(golangVersion) == releasedVersionMajorMinor {
+		if MajorMinor(golangVersion) == releasedVersionMajorMinor {
 			versionInfo.ReleaseVersion = publishedRelease.GetName()
 			versionInfo.GolangVersion = golangVersion
 		} else {
@@ -110,14 +109,7 @@ func (f *githubVersion) getGolangVersionOnRef(release config.Release, ref string
 		return "", err
 	}
 
-	fmt.Printf("getting version for fingerprint: %s\n", packageSpec.Fingerprint)
-
 	return f.boshPackageVersion.GetFingerprintVersion(packageSpec.Fingerprint, release.GolangPackage)
-}
-
-func majorMinor(version string) string {
-	parts := strings.Split(version, ".")
-	return fmt.Sprintf("%s.%s", parts[0], parts[1])
 }
 
 func releaseVersionKey(releaseName string, version string) string {

@@ -101,7 +101,7 @@ func (v *boshPackageVersion) PopulateCache() error {
 
 		}
 	}
-	fmt.Printf("fingerprintsCache: %#v\n", v.fingerprintsCache)
+	log.Println("Populated cache...")
 	return nil
 }
 
@@ -109,10 +109,9 @@ func (v *boshPackageVersion) GetFingerprintVersion(fingerprint string, golangPac
 	v.fingerprintsCacheMux.Lock()
 	defer v.fingerprintsCacheMux.Unlock()
 	if version, ok := v.fingerprintsCache[fingerprint]; ok {
-		fmt.Println("using cache")
 		return version, nil
 	}
-	fmt.Println("not using cache")
+	log.Printf("could not find fingerprint in cache: %s\n", fingerprint)
 
 	versionFile := fmt.Sprintf("packages/%s/version", golangPackage)
 	fingerprintFile := fmt.Sprintf(`.final_builds/packages/%s/index.yml`, golangPackage)
@@ -130,7 +129,6 @@ func (v *boshPackageVersion) GetFingerprintVersion(fingerprint string, golangPac
 
 	for _, commitResult := range commitResults {
 		commitSHA := commitResult.GetSHA()
-		log.Printf("checking commit: %s\n", commitSHA)
 		commit, _, err := v.githubClient.Repositories.GetCommit(
 			v.ctx,
 			GOLANG_BOSH_RELEASE_OWNER,

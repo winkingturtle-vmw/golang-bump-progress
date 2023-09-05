@@ -2,13 +2,16 @@ package version
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/google/go-github/v54/github"
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	TAS_RELEASES_FILE = "tas/Kilnfile.lock"
+	TAS_RELEASES_FILE  = "tas/Kilnfile.lock"
+	TASW_RELEASES_FILE = "tasw/Kilnfile.lock"
+	IST_RELEASES_FILE  = "ist/Kilnfile.lock"
 )
 
 type KilnRelease struct {
@@ -22,7 +25,9 @@ type Kilnfile struct {
 
 type tasVersion struct {
 	githubClient *github.Client
-	releases     map[string]string
+	tasReleases  map[string]string
+	taswReleases map[string]string
+	istReleases  map[string]string
 	ctx          context.Context
 }
 
@@ -34,30 +39,61 @@ func NewTasVersion(ctx context.Context, githubClient *github.Client) *tasVersion
 }
 
 func (v *tasVersion) Fetch(ref string) error {
-	kilnContents, _, _, err := v.githubClient.Repositories.GetContents(v.ctx, "pivotal", "tas", TAS_RELEASES_FILE, &github.RepositoryContentGetOptions{Ref: ref})
+	var err error
+	v.tasReleases, err = v.fetchForFile(ref, TAS_RELEASES_FILE)
 	if err != nil {
 		return err
 	}
-	kilnContent, err := kilnContents.GetContent()
+	fmt.Printf("got tas releases: %#v\n", v.tasReleases)
+
+	v.taswReleases, err = v.fetchForFile(ref, TASW_RELEASES_FILE)
 	if err != nil {
 		return err
+	}
+	fmt.Printf("got tasw releases: %#v\n", v.taswReleases)
+
+	v.istReleases, err = v.fetchForFile(ref, IST_RELEASES_FILE)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("got ist releases: %#v\n", v.istReleases)
+	return nil
+}
+
+func (v *tasVersion) fetchForFile(ref string, fileName string) (map[string]string, error) {
+	kilnContents, _, _, err := v.githubClient.Repositories.GetContents(v.ctx, "pivotal", "tas", fileName, &github.RepositoryContentGetOptions{Ref: ref})
+	if err != nil {
+		return nil, err
+	}
+	kilnContent, err := kilnContents.GetContent()
+	if err != nil {
+		return nil, err
 	}
 
 	var kilnFile Kilnfile
 	err = yaml.Unmarshal([]byte(kilnContent), &kilnFile)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	v.releases = map[string]string{}
+	releases := map[string]string{}
 	for _, release := range kilnFile.Releases {
-		v.releases[release.Name] = release.Version
+		releases[release.Name] = release.Version
 	}
 
-	return nil
+	return releases, nil
 }
 
-func (v *tasVersion) GetReleaseVersion(releaseName string) (string, bool) {
-	version, ok := v.releases[releaseName]
+func (v *tasVersion) GetTasReleaseVersion(releaseName string) (string, bool) {
+	version, ok := v.tasReleases[releaseName]
 	return version, ok
+}
 
+func (v *tasVersion) GetTaswReleaseVersion(releaseName string) (string, bool) {
+	version, ok := v.taswReleases[releaseName]
+	return version, ok
+}
+
+func (v *tasVersion) GetIstReleaseVersion(releaseName string) (string, bool) {
+	version, ok := v.istReleases[releaseName]
+	return version, ok
 }

@@ -3,12 +3,19 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 <style>
 div.table-container {
-  margin-top: 100px;
+    margin-top: 100px;
+}
+h1 {
+    margin-bottom: 50px;
+}
+.all-bumped {
+    background-color: #daf1da;
 }
 </style>
 </head>
 <body>
 <div class="container table-container">
+<h1>Golang {{ .GolangVersion }} bump progress</h1>
 <table class="table">
     <thead class="thead-light">
         <tr>
@@ -17,18 +24,22 @@ div.table-container {
             <th scope="col">Released Golang version</th>
             <th scope="col">First minor released Golang version</th>
             <th scope="col">Release version with the first minor Golang</th>
-            <th scope="col">Released golang minor in TAS</th>
+            <th scope="col">Golang {{ .GolangVersion }} released in TAS?</th>
+            <th scope="col">Golang {{ .GolangVersion }} released in TASW?</th>
+            <th scope="col">Golang {{ .GolangVersion }} released in IST?</th>
         <tr>
     </thead>
     <tbody>
         {{range .Releases}}
-        <tr>
+        <tr {{ if .AllBumped }}class="all-bumped"{{ end }}>
             <td><a href="{{ .URL }}">{{ .Name }}</a></td>
             <td>{{ .VersionOnDev }}</td>
             <td>{{ .ReleasedVersion }}</td>
             <td>{{ .FirstReleasedGolangVersion }}</td>
             <td>{{ .FirstReleasedReleaseVersion }}</td>
             <td>{{ .BumpedInTas }}</td>
+            <td>{{ .BumpedInTasw }}</td>
+            <td>{{ .BumpedInIst }}</td>
         </tr>
         {{end}}
     </tbody>

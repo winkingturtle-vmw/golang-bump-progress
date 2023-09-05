@@ -8,11 +8,14 @@ import (
 )
 
 type Release struct {
-	Name          string `json:"name"`
-	URL           string `json:"url"`
-	Owner         string
-	Repo          string
-	GolangPackage string `json:"golang_package"`
+	Name            string `json:"name"`
+	URL             string `json:"url"`
+	Owner           string
+	Repo            string
+	GolangPackage   string `json:"golang_package"`
+	TasReleaseName  string `json:"tas_release_name"`
+	TaswReleaseName string `json:"tasw_release_name"`
+	IstReleaseName  string `json:"ist_release_name"`
 }
 
 type Config struct {
