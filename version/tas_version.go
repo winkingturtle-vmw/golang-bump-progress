@@ -2,7 +2,6 @@ package version
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/go-github/v54/github"
 	"gopkg.in/yaml.v2"
@@ -44,19 +43,16 @@ func (v *tasVersion) Fetch(ref string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("got tas releases: %#v\n", v.tasReleases)
-
 	v.taswReleases, err = v.fetchForFile(ref, TASW_RELEASES_FILE)
+
 	if err != nil {
 		return err
 	}
-	fmt.Printf("got tasw releases: %#v\n", v.taswReleases)
 
 	v.istReleases, err = v.fetchForFile(ref, IST_RELEASES_FILE)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("got ist releases: %#v\n", v.istReleases)
 	return nil
 }
 

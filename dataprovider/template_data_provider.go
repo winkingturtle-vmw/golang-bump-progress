@@ -188,7 +188,7 @@ func (p *templateDataProvider) getTileBumpInfo(tileName string, releaseName stri
 		log.Printf("failed to parse TAS release version for %s: %s", releaseName, err.Error())
 		return "", false
 	}
-	fmt.Printf("comparing: %s and %s\n", firstReleaseV, tasReleaseV)
+
 	if firstReleaseV.GreaterThan(tasReleaseV) {
 		return fmt.Sprintf("no (%s)", tasReleaseV), false
 	}
