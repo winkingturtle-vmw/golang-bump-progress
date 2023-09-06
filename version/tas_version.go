@@ -43,8 +43,8 @@ func (v *tasVersion) Fetch(ref string) error {
 	if err != nil {
 		return err
 	}
-	v.taswReleases, err = v.fetchForFile(ref, TASW_RELEASES_FILE)
 
+	v.taswReleases, err = v.fetchForFile(ref, TASW_RELEASES_FILE)
 	if err != nil {
 		return err
 	}
@@ -61,6 +61,7 @@ func (v *tasVersion) fetchForFile(ref string, fileName string) (map[string]strin
 	if err != nil {
 		return nil, err
 	}
+
 	kilnContent, err := kilnContents.GetContent()
 	if err != nil {
 		return nil, err
@@ -71,6 +72,7 @@ func (v *tasVersion) fetchForFile(ref string, fileName string) (map[string]strin
 	if err != nil {
 		return nil, err
 	}
+
 	releases := map[string]string{}
 	for _, release := range kilnFile.Releases {
 		releases[release.Name] = release.Version
