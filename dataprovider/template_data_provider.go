@@ -33,6 +33,11 @@ type TemplateData struct {
 	Releases      []Release
 }
 
+var DefaultTemplateData = TemplateData{
+	GolangVersion: version.MajorMinor(TARGET_GOLANG_VERSION),
+	Releases:      []Release{},
+}
+
 type versionFetcher interface {
 	GetDevelopVersion(release config.Release) (string, error)
 	GetReleasedVersion(release config.Release) (string, error)
@@ -74,9 +79,10 @@ func (p *templateDataProvider) Get() TemplateData {
 }
 
 func (p *templateDataProvider) fetch() TemplateData {
-	data := TemplateData{
-		GolangVersion: version.MajorMinor(TARGET_GOLANG_VERSION),
-		Releases:      []Release{},
+	data := DefaultTemplateData
+	err := p.tasVersion.Fetch("main")
+	if err != nil {
+		log.Printf("failed to get TAS versions: %s", err.Error())
 	}
 
 	targetGolangV, err := semver.NewVersion(TARGET_GOLANG_VERSION)
@@ -91,7 +97,7 @@ func (p *templateDataProvider) fetch() TemplateData {
 		}
 
 		firstVersionInfo := version.VersionInfo{}
-		var bumpedInTas, bumpedInTasw, bumpedInIst string
+		bumpedInTas, bumpedInTasw, bumpedInIst := "n/a", "n/a", "n/a"
 		var allBumped bool
 
 		releasedVersion, err := p.githubVersion.GetReleasedVersion(release)

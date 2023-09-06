@@ -1,0 +1,39 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+<style>
+div.table-container {
+    margin-top: 80px;
+}
+h1 {
+    margin-bottom: 50px;
+}
+.all-bumped {
+    background-color: #daf1da;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+<script>
+      $(document).ready(function () {
+        loadData();
+      });
+
+      function loadData()
+      {
+        $.ajax({ url: 'table',
+                 type: 'get',
+                 dataType: 'text',
+                 success : function(data) {
+                   $('#data').html(data);
+                 },
+                });
+      }
+    </script>
+</head>
+<body>
+<div class="container table-container">
+<h1>Golang {{ .GolangVersion }} bump progress</h1>
+<p id="data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
+</div>
+</body>
+</html>

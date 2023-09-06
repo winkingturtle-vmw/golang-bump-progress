@@ -15,7 +15,8 @@ import (
 )
 
 func main() {
-	tmpl := template.Must(template.ParseFiles("templates/table.html"))
+	baseTmpl := template.Must(template.ParseFiles("templates/base.html"))
+	tableTmpl := template.Must(template.ParseFiles("templates/table.html"))
 	cfg, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("failed to load config: %s", err.Error())
@@ -36,15 +37,15 @@ func main() {
 
 	githubVersion := version.NewGithubVersion(ctx, githubClient, boshPackageVersion)
 	tasVersion := version.NewTasVersion(ctx, githubClient)
-	err = tasVersion.Fetch("main")
-	if err != nil {
-		log.Printf("failed to get TAS versions: %s", err.Error())
-	}
 	templateDataProvider := dataprovider.NewTemplateDataProvider(githubVersion, tasVersion, cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		baseTmpl.Execute(w, dataprovider.DefaultTemplateData)
+	})
+
+	http.HandleFunc("/table", func(w http.ResponseWriter, r *http.Request) {
 		data := templateDataProvider.Get()
-		tmpl.Execute(w, data)
+		tableTmpl.Execute(w, data)
 	})
 
 	err = http.ListenAndServe(":8080", nil)

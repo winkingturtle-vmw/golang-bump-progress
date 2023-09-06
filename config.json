@@ -84,6 +84,11 @@
             "name": "windows-tools",
             "url": "https://github.com/cloudfoundry/windows-tools-release",
             "golang_package": "golang-1-windows"
+        },
+        {
+            "name": "test-log-emitter",
+            "url": "https://github.com/cloudfoundry/test-log-emitter-release",
+            "golang_package": "golang-1-linux"
         }
     ]
 }
