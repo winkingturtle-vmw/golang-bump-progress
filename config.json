@@ -3,92 +3,92 @@
         {
             "name": "diego (linux)",
             "url": "https://github.com/cloudfoundry/diego-release",
-            "golang_package": "golang-1-linux", 
+            "platform": "linux",
             "tas_release_name": "diego",
             "ist_release_name": "diego"
         },
         {
             "name": "diego (windows)",
             "url": "https://github.com/cloudfoundry/diego-release",
-            "golang_package": "golang-1-windows",
+            "platform": "windows",
             "tasw_release_name": "diego"
         },
         {
             "name": "cf-networking",
             "url": "https://github.com/cloudfoundry/cf-networking-release",
-            "golang_package": "golang-1.20-linux",
+            "platform": "linux",
             "tas_release_name": "cf-networking",
             "ist_release_name": "cf-networking"
         },
         {
             "name": "silk",
             "url": "https://github.com/cloudfoundry/silk-release",
-            "golang_package": "golang-1.20-linux",
+            "platform": "linux",
             "tas_release_name": "silk",
             "ist_release_name": "silk"
         },
         {
             "name": "garden-runc (linux)",
             "url": "https://github.com/cloudfoundry/garden-runc-release",
-            "golang_package": "golang-1.20-linux",
+            "platform": "linux",
             "tas_release_name": "garden-runc",
             "ist_release_name": "garden-runc"
         },
         {
             "name": "garden-runc (windows)",
             "url": "https://github.com/cloudfoundry/garden-runc-release",
-            "golang_package": "golang-1.20-windows",
+            "platform": "windows",
             "tasw_release_name": "garden-runc"
         },
         {
             "name": "nats",
             "url": "https://github.com/cloudfoundry/nats-release",
-            "golang_package": "golang-1-linux",
+            "platform": "linux",
             "tas_release_name": "nats"
         },
         {
             "name": "routing",
             "url": "https://github.com/cloudfoundry/routing-release",
-            "golang_package": "golang-1.21-linux",
+            "platform": "linux",
             "tas_release_name": "routing",
             "ist_release_name": "routing"
         },
         {
             "name": "healthchecker",
             "url": "https://github.com/cloudfoundry/healthchecker-release",
-            "golang_package": "golang-1-linux"
+            "platform": "linux"
         },
         {
             "name": "winc",
             "url": "https://github.com/cloudfoundry/winc-release",
-            "golang_package": "golang-1-windows",
+            "platform": "windows",
             "tasw_release_name": "winc"
         },
         {
             "name": "envoy-nginx",
             "url": "https://github.com/cloudfoundry/envoy-nginx-release",
-            "golang_package": "golang-1.20-windows",
+            "platform": "windows",
             "tasw_release_name": "envoy-nginx"
         },
         {
             "name": "windows2019fs",
             "url": "https://github.com/cloudfoundry/windows2019fs-release",
-            "golang_package": "golang-1-windows"
+            "platform": "windows"
         },
         {
             "name": "windowsfs-online",
             "url": "https://github.com/cloudfoundry/windowsfs-online-release",
-            "golang_package": "golang-1-windows"
+            "platform": "windows"
         },
         {
             "name": "windows-tools",
             "url": "https://github.com/cloudfoundry/windows-tools-release",
-            "golang_package": "golang-1-windows"
+            "platform": "windows"
         },
         {
             "name": "test-log-emitter",
             "url": "https://github.com/cloudfoundry/test-log-emitter-release",
-            "golang_package": "golang-1-linux"
+            "platform": "linux"
         }
     ]
 }

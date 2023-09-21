@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
 	"github.com/google/go-github/v54/github"
@@ -91,27 +92,46 @@ func (f *githubVersion) GetFirstReleasedVersion(release config.Release, released
 }
 
 func (f *githubVersion) getGolangVersionOnRef(release config.Release, ref string) (string, error) {
-	developSpecContent, _, response, err := f.githubClient.Repositories.GetContents(f.ctx, release.Owner, release.Repo, fmt.Sprintf("packages/%s/spec.lock", release.GolangPackage), &github.RepositoryContentGetOptions{Ref: ref})
+	_, packagesDirContent, response, err := f.githubClient.Repositories.GetContents(f.ctx, release.Owner, release.Repo, "packages", &github.RepositoryContentGetOptions{Ref: ref})
+	if err != nil {
+		return "", err
+	}
+
+	golangPackageName, found := findGolangPackageName(packagesDirContent, release.Platform)
+	if !found {
+		return "", NotFoundError{fmt.Errorf("golang package not found for release: %s", release.Name)}
+	}
+	specContent, _, response, err := f.githubClient.Repositories.GetContents(f.ctx, release.Owner, release.Repo, fmt.Sprintf("packages/%s/spec.lock", golangPackageName), &github.RepositoryContentGetOptions{Ref: ref})
 	if err != nil {
 		if response.StatusCode == http.StatusNotFound {
 			return "", NotFoundError{err}
 		}
 		return "", err
 	}
-	developSpec, err := developSpecContent.GetContent()
+	spec, err := specContent.GetContent()
 	if err != nil {
 		return "", err
 	}
 
 	var packageSpec PackageSpec
-	err = yaml.Unmarshal([]byte(developSpec), &packageSpec)
+	err = yaml.Unmarshal([]byte(spec), &packageSpec)
 	if err != nil {
 		return "", err
 	}
 
-	return f.boshPackageVersion.GetFingerprintVersion(packageSpec.Fingerprint, release.GolangPackage)
+	return f.boshPackageVersion.GetFingerprintVersion(packageSpec.Fingerprint, golangPackageName)
 }
 
 func releaseVersionKey(releaseName string, version string) string {
 	return fmt.Sprintf("%s-%s", releaseName, version)
+}
+
+func findGolangPackageName(directoryContent []*github.RepositoryContent, platform string) (string, bool) {
+	for _, pkg := range directoryContent {
+		name := pkg.GetName()
+		if strings.HasPrefix(name, "golang-") && strings.HasSuffix(name, platform) {
+			return name, true
+		}
+	}
+	return "", false
 }
