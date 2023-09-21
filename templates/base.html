@@ -20,11 +20,18 @@ h1 {
 
       function loadData()
       {
-        $.ajax({ url: 'table',
+        $.ajax({ url: 'releases_table',
                  type: 'get',
                  dataType: 'text',
                  success : function(data) {
-                   $('#data').html(data);
+                   $('#releases_data').html(data);
+                 },
+                });
+        $.ajax({ url: 'images_table',
+                 type: 'get',
+                 dataType: 'text',
+                 success : function(data) {
+                   $('#images_data').html(data);
                  },
                 });
       }
@@ -33,7 +40,10 @@ h1 {
 <body>
 <div class="container table-container">
 <h1>Golang {{ .GolangVersion }} bump progress</h1>
-<p id="data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
+<h2>Releases</h2>
+<p id="releases_data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
+<h2>Images</h2>
+<p id="images_data">Loading the latest data on images...</p>
 </div>
 </body>
 </html>

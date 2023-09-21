@@ -18,8 +18,14 @@ type Release struct {
 	IstReleaseName  string `json:"ist_release_name"`
 }
 
+type Image struct {
+	Name string
+	URL  string
+}
+
 type Config struct {
 	Releases []Release `json:"releases"`
+	Images   []Image   `json:"images"`
 }
 
 func LoadConfig(filePath string) (Config, error) {

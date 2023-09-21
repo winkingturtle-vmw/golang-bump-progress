@@ -16,7 +16,8 @@ import (
 
 func main() {
 	baseTmpl := template.Must(template.ParseFiles("templates/base.html"))
-	tableTmpl := template.Must(template.ParseFiles("templates/table.html"))
+	releasesTableTmpl := template.Must(template.ParseFiles("templates/releases_table.html"))
+	dockerTableTmpl := template.Must(template.ParseFiles("templates/images_table.html"))
 	cfg, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("failed to load config: %s", err.Error())
@@ -37,15 +38,21 @@ func main() {
 
 	githubVersion := version.NewGithubVersion(ctx, githubClient, boshPackageVersion)
 	tasVersion := version.NewTasVersion(ctx, githubClient)
-	templateDataProvider := dataprovider.NewTemplateDataProvider(githubVersion, tasVersion, cfg)
+	releasesDataProvider := dataprovider.NewReleasesDataProvider(githubVersion, tasVersion, cfg)
+	imagesDataProvider := dataprovider.NewImagesDataProvider(cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		baseTmpl.Execute(w, dataprovider.DefaultTemplateData)
+		baseTmpl.Execute(w, dataprovider.BaseTemplateData)
 	})
 
-	http.HandleFunc("/table", func(w http.ResponseWriter, r *http.Request) {
-		data := templateDataProvider.Get()
-		tableTmpl.Execute(w, data)
+	http.HandleFunc("/releases_table", func(w http.ResponseWriter, r *http.Request) {
+		data := releasesDataProvider.Get()
+		releasesTableTmpl.Execute(w, data)
+	})
+
+	http.HandleFunc("/images_table", func(w http.ResponseWriter, r *http.Request) {
+		data := imagesDataProvider.Get()
+		dockerTableTmpl.Execute(w, data)
 	})
 
 	err = http.ListenAndServe(":8080", nil)

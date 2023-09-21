@@ -90,5 +90,15 @@
             "url": "https://github.com/cloudfoundry/test-log-emitter-release",
             "platform": "linux"
         }
+    ],
+    "images": [
+        {
+            "name": "tas-runtime-build",
+            "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-build"
+        },
+        {
+            "name": "tas-runtime-postgres",
+            "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-postgres"
+        }
     ]
 }

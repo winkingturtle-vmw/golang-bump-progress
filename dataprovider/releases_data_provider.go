@@ -10,11 +10,6 @@ import (
 	"github.com/cloudfoundry-incubator/golang-bump-progress/version"
 )
 
-const (
-	FETCH_INTERVAL        = time.Minute
-	TARGET_GOLANG_VERSION = "1.21.0" // TODO: pull this from tas-runtime/go.version once implemented
-)
-
 type Release struct {
 	Name                        string
 	URL                         string
@@ -28,14 +23,8 @@ type Release struct {
 	AllBumped                   bool
 }
 
-type TemplateData struct {
-	GolangVersion string
-	Releases      []Release
-}
-
-var DefaultTemplateData = TemplateData{
-	GolangVersion: version.MajorMinor(TARGET_GOLANG_VERSION),
-	Releases:      []Release{},
+type ReleasesData struct {
+	Releases []Release
 }
 
 type versionFetcher interface {
@@ -51,23 +40,23 @@ type tasVersionProvider interface {
 	GetIstReleaseVersion(releaseName string) (string, bool)
 }
 
-type templateDataProvider struct {
+type releasesDataProvider struct {
 	githubVersion versionFetcher
 	tasVersion    tasVersionProvider
 	config        config.Config
 	lastFetchTime time.Time
-	cachedData    TemplateData
+	cachedData    ReleasesData
 }
 
-func NewTemplateDataProvider(githubVersion versionFetcher, tasVersion tasVersionProvider, cfg config.Config) *templateDataProvider {
-	return &templateDataProvider{
+func NewReleasesDataProvider(githubVersion versionFetcher, tasVersion tasVersionProvider, cfg config.Config) *releasesDataProvider {
+	return &releasesDataProvider{
 		githubVersion: githubVersion,
 		tasVersion:    tasVersion,
 		config:        cfg,
 	}
 }
 
-func (p *templateDataProvider) Get() TemplateData {
+func (p *releasesDataProvider) Get() ReleasesData {
 	if p.lastFetchTime.IsZero() || p.lastFetchTime.Add(FETCH_INTERVAL).Before(time.Now()) {
 		log.Println("Fetching new data for template")
 		p.lastFetchTime = time.Now()
@@ -78,8 +67,8 @@ func (p *templateDataProvider) Get() TemplateData {
 	return p.cachedData
 }
 
-func (p *templateDataProvider) fetch() TemplateData {
-	data := DefaultTemplateData
+func (p *releasesDataProvider) fetch() ReleasesData {
+	data := ReleasesData{}
 	err := p.tasVersion.Fetch("main")
 	if err != nil {
 		log.Printf("failed to get TAS versions: %s", err.Error())
@@ -128,7 +117,7 @@ func (p *templateDataProvider) fetch() TemplateData {
 	return data
 }
 
-func (p *templateDataProvider) bumpedInTiles(release config.Release, firstVersionInfo version.VersionInfo, targetGolangV *semver.Version) (string, string, string, bool) {
+func (p *releasesDataProvider) bumpedInTiles(release config.Release, firstVersionInfo version.VersionInfo, targetGolangV *semver.Version) (string, string, string, bool) {
 	var bumpedInTas, bumpedInTasw, bumpedInIst string
 	var allBumped bool
 
@@ -157,7 +146,7 @@ func (p *templateDataProvider) bumpedInTiles(release config.Release, firstVersio
 	return bumpedInTas, bumpedInTasw, bumpedInIst, allBumped
 }
 
-func (p *templateDataProvider) getTileBumpInfo(tileName string, releaseName string, firstReleaseV *semver.Version, isTargetReleased bool) (string, bool) {
+func (p *releasesDataProvider) getTileBumpInfo(tileName string, releaseName string, firstReleaseV *semver.Version, isTargetReleased bool) (string, bool) {
 	if releaseName == "" {
 		return "n/a", true
 	}
