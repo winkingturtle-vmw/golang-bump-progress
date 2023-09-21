@@ -24,7 +24,8 @@ type Release struct {
 }
 
 type ReleasesData struct {
-	Releases []Release
+	GolangVersion string
+	Releases      []Release
 }
 
 type versionFetcher interface {
@@ -68,7 +69,9 @@ func (p *releasesDataProvider) Get() ReleasesData {
 }
 
 func (p *releasesDataProvider) fetch() ReleasesData {
-	data := ReleasesData{}
+	data := ReleasesData{
+		GolangVersion: BaseTemplateData.GolangVersion,
+	}
 	err := p.tasVersion.Fetch("main")
 	if err != nil {
 		log.Printf("failed to get TAS versions: %s", err.Error())

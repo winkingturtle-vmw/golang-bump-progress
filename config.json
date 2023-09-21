@@ -93,12 +93,20 @@
     ],
     "images": [
         {
-            "name": "tas-runtime-build",
+            "name": "cloudfoundry/tas-runtime-build",
             "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-build"
         },
         {
-            "name": "tas-runtime-postgres",
+            "name": "cloudfoundry/tas-runtime-postgres",
             "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-postgres"
+        },
+        {
+            "name": "cloudfoundry/tas-runtime-mysql-5.7",
+            "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-mysql-5.7"
+        },
+        {
+            "name": "cloudfoundry/tas-runtime-mysql-8.0",
+            "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-mysql-8.0"
         }
     ]
 }
