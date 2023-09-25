@@ -38,20 +38,24 @@ func main() {
 
 	githubVersion := version.NewGithubVersion(ctx, githubClient, boshPackageVersion)
 	tasVersion := version.NewTasVersion(ctx, githubClient)
+	baseDataProvider := dataprovider.NewBaseDataProvider(ctx, githubClient)
 	releasesDataProvider := dataprovider.NewReleasesDataProvider(githubVersion, tasVersion, cfg)
 	imagesDataProvider := dataprovider.NewImagesDataProvider(cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		baseTmpl.Execute(w, dataprovider.BaseTemplateData)
+		data := baseDataProvider.Get()
+		baseTmpl.Execute(w, data)
 	})
 
 	http.HandleFunc("/releases_table", func(w http.ResponseWriter, r *http.Request) {
-		data := releasesDataProvider.Get()
+		targetGoVersion := r.URL.Query().Get("target")
+		data := releasesDataProvider.Get(targetGoVersion)
 		releasesTableTmpl.Execute(w, data)
 	})
 
 	http.HandleFunc("/images_table", func(w http.ResponseWriter, r *http.Request) {
-		data := imagesDataProvider.Get()
+		targetGoVersion := r.URL.Query().Get("target")
+		data := imagesDataProvider.Get(targetGoVersion)
 		dockerTableTmpl.Execute(w, data)
 	})
 

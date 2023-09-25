@@ -57,29 +57,29 @@ func NewReleasesDataProvider(githubVersion versionFetcher, tasVersion tasVersion
 	}
 }
 
-func (p *releasesDataProvider) Get() ReleasesData {
+func (p *releasesDataProvider) Get(targetGoVersion string) ReleasesData {
 	if p.lastFetchTime.IsZero() || p.lastFetchTime.Add(FETCH_INTERVAL).Before(time.Now()) {
 		log.Println("Fetching new data for template")
 		p.lastFetchTime = time.Now()
-		p.cachedData = p.fetch()
+		p.cachedData = p.fetch(targetGoVersion)
 		return p.cachedData
 	}
 
 	return p.cachedData
 }
 
-func (p *releasesDataProvider) fetch() ReleasesData {
+func (p *releasesDataProvider) fetch(targetGoVersion string) ReleasesData {
 	data := ReleasesData{
-		GolangVersion: BaseTemplateData.GolangVersion,
+		GolangVersion: targetGoVersion,
 	}
 	err := p.tasVersion.Fetch("main")
 	if err != nil {
 		log.Printf("failed to get TAS versions: %s", err.Error())
 	}
 
-	targetGolangV, err := semver.NewVersion(TARGET_GOLANG_VERSION)
+	targetGolangV, err := semver.NewVersion(targetGoVersion)
 	if err != nil {
-		log.Printf("failed to parse target golang version: %s", TARGET_GOLANG_VERSION)
+		log.Printf("failed to parse target golang version: %s", targetGoVersion)
 	}
 
 	for _, release := range p.config.Releases {
@@ -136,7 +136,10 @@ func (p *releasesDataProvider) bumpedInTiles(release config.Release, firstVersio
 		return bumpedInTas, bumpedInTasw, bumpedInIst, allBumped
 	}
 
-	isTargetReleased := !targetGolangV.GreaterThan(firstGolangVersion)
+	isTargetReleased := false
+	if targetGolangV != nil {
+		isTargetReleased = !targetGolangV.GreaterThan(firstGolangVersion)
+	}
 
 	bumpedInTas, tasSatisfied := p.getTileBumpInfo("TAS", release.TasReleaseName, firstReleaseV, isTargetReleased)
 	bumpedInTasw, taswSatisfied := p.getTileBumpInfo("TASW", release.TaswReleaseName, firstReleaseV, isTargetReleased)

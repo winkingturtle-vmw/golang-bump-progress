@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/cloudfoundry-incubator/golang-bump-progress/config"
 )
 
@@ -39,22 +40,37 @@ func NewImagesDataProvider(cfg config.Config) *imagesDataProvider {
 	}
 }
 
-func (p *imagesDataProvider) Get() ImagesData {
+func (p *imagesDataProvider) Get(targetGoVersion string) ImagesData {
 	if p.lastFetchTime.IsZero() || p.lastFetchTime.Add(FETCH_INTERVAL).Before(time.Now()) {
 		log.Println("Fetching new data for template")
 		p.lastFetchTime = time.Now()
-		p.cachedData = p.fetch()
+		p.cachedData = p.fetch(targetGoVersion)
 		return p.cachedData
 	}
 
 	return p.cachedData
 }
 
-func (p *imagesDataProvider) fetch() ImagesData {
+func (p *imagesDataProvider) fetch(targetGoVersion string) ImagesData {
 	data := ImagesData{}
+	targetGolangV, err := semver.NewVersion(targetGoVersion)
+	if err != nil {
+		log.Printf("failed to parse target golang version: %s", targetGoVersion)
+	}
 	for _, image := range p.config.Images {
-		var allBumped bool
 		version := getDockerhubGoVersion(image.Name)
+
+		allBumped := false
+		if targetGolangV != nil {
+			imageV, err := semver.NewVersion(version)
+			if err != nil {
+				log.Printf("failed to parse image version for %s: %s", image.Name, err.Error())
+			} else {
+				if !targetGolangV.GreaterThan(imageV) {
+					allBumped = true
+				}
+			}
+		}
 
 		data.Images = append(data.Images, Image{
 			Name:      image.Name,

@@ -21,6 +21,7 @@ h1 {
       function loadData()
       {
         $.ajax({ url: 'releases_table',
+                 data: 'target={{ .TargetGoVersion }}',
                  type: 'get',
                  dataType: 'text',
                  success : function(data) {
@@ -28,6 +29,7 @@ h1 {
                  },
                 });
         $.ajax({ url: 'images_table',
+                 data: 'target={{ .TargetGoVersion }}',
                  type: 'get',
                  dataType: 'text',
                  success : function(data) {
@@ -39,11 +41,11 @@ h1 {
 </head>
 <body>
 <div class="container table-container">
-<h1>Golang {{ .GolangVersion }} bump progress</h1>
-<h2>Releases</h2>
-<p id="releases_data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
-<h2>Images</h2>
-<p id="images_data">Loading the latest data on images...</p>
+  <h1>Golang {{ .TargetGoVersion }} bump progress</h1>
+  <h2>Releases</h2>
+  <p id="releases_data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
+  <h2>Images</h2>
+  <p id="images_data">Loading the latest data on images...</p>
 </div>
 </body>
 </html>
