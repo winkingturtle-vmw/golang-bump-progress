@@ -17,7 +17,8 @@ import (
 func main() {
 	baseTmpl := template.Must(template.ParseFiles("templates/base.html"))
 	releasesTableTmpl := template.Must(template.ParseFiles("templates/releases_table.html"))
-	dockerTableTmpl := template.Must(template.ParseFiles("templates/images_table.html"))
+	imagesTableTmpl := template.Must(template.ParseFiles("templates/images_table.html"))
+	pluginsTableTmpl := template.Must(template.ParseFiles("templates/plugins_table.html"))
 	cfg, err := config.LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("failed to load config: %s", err.Error())
@@ -41,6 +42,7 @@ func main() {
 	baseDataProvider := dataprovider.NewBaseDataProvider(ctx, githubClient)
 	releasesDataProvider := dataprovider.NewReleasesDataProvider(githubVersion, tasVersion, cfg)
 	imagesDataProvider := dataprovider.NewImagesDataProvider(cfg)
+	pluginsDataProvider := dataprovider.NewPluginsDataProvider(ctx, githubClient, cfg)
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		data := baseDataProvider.Get()
@@ -56,7 +58,13 @@ func main() {
 	http.HandleFunc("/images_table", func(w http.ResponseWriter, r *http.Request) {
 		targetGoVersion := r.URL.Query().Get("target")
 		data := imagesDataProvider.Get(targetGoVersion)
-		dockerTableTmpl.Execute(w, data)
+		imagesTableTmpl.Execute(w, data)
+	})
+
+	http.HandleFunc("/plugins_table", func(w http.ResponseWriter, r *http.Request) {
+		targetGoVersion := r.URL.Query().Get("target")
+		data := pluginsDataProvider.Get(targetGoVersion)
+		pluginsTableTmpl.Execute(w, data)
 	})
 
 	err = http.ListenAndServe(":8080", nil)

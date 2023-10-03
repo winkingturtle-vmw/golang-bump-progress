@@ -36,6 +36,14 @@ h1 {
                    $('#images_data').html(data);
                  },
                 });
+        $.ajax({ url: 'plugins_table',
+                 data: 'target={{ .TargetGoVersion }}',
+                 type: 'get',
+                 dataType: 'text',
+                 success : function(data) {
+                   $('#plugins_data').html(data);
+                 },
+                });
       }
     </script>
 </head>
@@ -46,6 +54,8 @@ h1 {
   <p id="releases_data">Loading the latest data on dev versions, latest releases and TAS bumps...</p>
   <h2>Images</h2>
   <p id="images_data">Loading the latest data on images...</p>
+  <h2>Plugins</h2>
+  <p id="plugins_data">Loading the latest data on plugins...</p>
 </div>
 </body>
 </html>

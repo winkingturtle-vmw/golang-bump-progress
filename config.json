@@ -137,5 +137,11 @@
             "name": "cloudfoundry/diego-release",
             "url": "https://hub.docker.com/r/cloudfoundry/diego-release"
         }
+    ],
+    "plugins": [
+        {
+            "name": "cpu-entitlement-plugin",
+            "url": "https://github.com/cloudfoundry/cpu-entitlement-plugin"
+        }
     ]
 }
