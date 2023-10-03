@@ -91,16 +91,21 @@ func (p *releasesDataProvider) fetch(targetGoVersion string) ReleasesData {
 		firstVersionInfo := version.VersionInfo{}
 		bumpedInTas, bumpedInTasw, bumpedInIst := "n/a", "n/a", "n/a"
 		var allBumped bool
+		var releasedVersion string
 
-		releasedVersion, err := p.githubVersion.GetReleasedVersion(release)
-		if err != nil {
-			log.Printf("failed to get released version for %s: %s", release.Name, err.Error())
+		if release.OnlyDevelop {
+			allBumped = true
 		} else {
-			firstVersionInfo, err = p.githubVersion.GetFirstReleasedVersion(release, releasedVersion)
+			releasedVersion, err = p.githubVersion.GetReleasedVersion(release)
 			if err != nil {
-				log.Printf("failed to get first released minor version for %s: %s", release.Name, err.Error())
+				log.Printf("failed to get released version for %s: %s", release.Name, err.Error())
 			} else {
-				bumpedInTas, bumpedInTasw, bumpedInIst, allBumped = p.bumpedInTiles(release, firstVersionInfo, targetGolangV)
+				firstVersionInfo, err = p.githubVersion.GetFirstReleasedVersion(release, releasedVersion)
+				if err != nil {
+					log.Printf("failed to get first released minor version for %s: %s", release.Name, err.Error())
+				} else {
+					bumpedInTas, bumpedInTasw, bumpedInIst, allBumped = p.bumpedInTiles(release, firstVersionInfo, targetGolangV)
+				}
 			}
 		}
 

@@ -88,7 +88,8 @@
         {
             "name": "test-log-emitter",
             "url": "https://github.com/cloudfoundry/test-log-emitter-release",
-            "platform": "linux"
+            "platform": "linux",
+            "only_develop": true
         }
     ],
     "images": [

@@ -16,6 +16,7 @@ type Release struct {
 	TasReleaseName  string `json:"tas_release_name"`
 	TaswReleaseName string `json:"tasw_release_name"`
 	IstReleaseName  string `json:"ist_release_name"`
+	OnlyDevelop     bool   `json:"only_develop"`
 }
 
 type Image struct {
