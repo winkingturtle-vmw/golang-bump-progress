@@ -45,7 +45,7 @@ func (p *baseDataProvider) Get() BaseData {
 
 func (p *baseDataProvider) fetch() BaseData {
 	data := BaseData{}
-	goVersionContent, _, _, err := p.githubClient.Repositories.GetContents(p.ctx, "cloudfoundry", "wg-app-platform-runtime-ci", "go_version.json", &github.RepositoryContentGetOptions{Ref: "main"})
+	goVersionContent, _, _, err := p.githubClient.Repositories.GetContents(p.ctx, "cloudfoundry", "wg-app-platform-runtime-ci", "go-version.json", &github.RepositoryContentGetOptions{Ref: "main"})
 	if err != nil {
 		log.Printf("failed to get target go version: %s", err.Error())
 		return data
