@@ -3,7 +3,7 @@ package dataprovider
 import (
 	"context"
 	"log"
-	"strings"
+	"regexp"
 	"time"
 
 	"github.com/Masterminds/semver/v3"
@@ -14,7 +14,6 @@ import (
 type Plugin struct {
 	Name            string
 	URL             string
-	DevVersion      string
 	ReleasedVersion string
 	AllBumped       bool
 }
@@ -57,14 +56,13 @@ func (p *pluginsDataProvider) fetch(targetGoVersion string) PluginsData {
 		log.Printf("failed to parse target golang version: %s", targetGoVersion)
 	}
 	for _, plugin := range p.config.Plugins {
-		devVersion := p.getGolangVersionOnRef(plugin, "develop")
 		releasedVersion := p.getReleasedVersion(plugin)
 
 		allBumped := false
 		if targetGolangV != nil {
 			pluginV, err := semver.NewVersion(releasedVersion)
 			if err != nil {
-				log.Printf("failed to parse image version for %s: %s", plugin.Name, err.Error())
+				log.Printf("failed to parse plugin version %s for %s: %s", releasedVersion, plugin.Name, err.Error())
 			} else {
 				if !targetGolangV.GreaterThan(pluginV) {
 					allBumped = true
@@ -75,7 +73,6 @@ func (p *pluginsDataProvider) fetch(targetGoVersion string) PluginsData {
 		data.Plugins = append(data.Plugins, Plugin{
 			Name:            plugin.Name,
 			URL:             plugin.URL,
-			DevVersion:      devVersion,
 			ReleasedVersion: releasedVersion,
 			AllBumped:       allBumped,
 		})
@@ -90,26 +87,13 @@ func (p *pluginsDataProvider) getReleasedVersion(plugin config.Plugin) string {
 	}
 	if len(publishedReleases) < 1 {
 		return ""
-
 	}
-	return p.getGolangVersionOnRef(plugin, publishedReleases[0].GetTagName())
-}
-
-func (p *pluginsDataProvider) getGolangVersionOnRef(plugin config.Plugin, ref string) string {
-	docsContent, _, _, err := p.githubClient.Repositories.GetContents(p.ctx, plugin.Owner, plugin.Repo, "docs/go.version", &github.RepositoryContentGetOptions{Ref: ref})
-	if err != nil {
+	releaseBody := publishedReleases[0].GetBody()
+	re := regexp.MustCompile(`Built with go ([\d\.]*)`)
+	matches := re.FindStringSubmatch(releaseBody)
+	if len(matches) < 2 {
 		return ""
 	}
 
-	docs, err := docsContent.GetContent()
-	if err != nil {
-		return ""
-	}
-
-	lines := strings.Split(docs, "\n")
-	if len(lines) < 2 {
-		return ""
-	}
-
-	return lines[1]
+	return matches[1]
 }

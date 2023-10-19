@@ -2,7 +2,6 @@
     <thead class="thead-light">
         <tr>
             <th scope="col">Plugin name</th>
-            <th scope="col">Golang version on dev</th>
             <th scope="col">Released Golang version</th>
         <tr>
     </thead>
@@ -10,7 +9,6 @@
         {{range .Plugins}}
         <tr {{ if .AllBumped }}class="all-bumped"{{ end }}>
             <td><a href="{{ .URL }}">{{ .Name }}</a></td>
-            <td>{{ .DevVersion }}</td>
             <td>{{ .ReleasedVersion }}</td>
         </tr>
         {{end}}
