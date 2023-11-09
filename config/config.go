@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"os"
 	"strings"
@@ -16,6 +17,8 @@ type Release struct {
 	TasReleaseName  string `json:"tas_release_name"`
 	TaswReleaseName string `json:"tasw_release_name"`
 	IstReleaseName  string `json:"ist_release_name"`
+	CITeam          string `json:"ci_team"`
+	CIPipeline      string `json:"ci_pipeline"`
 	OnlyDevelop     bool   `json:"only_develop"`
 }
 
@@ -32,9 +35,18 @@ type Plugin struct {
 }
 
 type Config struct {
-	Releases []Release `json:"releases"`
-	Images   []Image   `json:"images"`
-	Plugins  []Plugin  `json:"plugins"`
+	CIBaseURL string    `json:"ci_url"`
+	Releases  []Release `json:"releases"`
+	Images    []Image   `json:"images"`
+	Plugins   []Plugin  `json:"plugins"`
+}
+
+func (c Config) CIURL(release Release) string {
+	return fmt.Sprintf("%s/teams/%s/pipelines/%s", c.CIBaseURL, release.CITeam, release.CIPipeline)
+}
+
+func (c Config) CIBadgeURL(release Release) string {
+	return fmt.Sprintf("%s/api/v1/teams/%s/pipelines/%s/badge", c.CIBaseURL, release.CITeam, release.CIPipeline)
 }
 
 func LoadConfig(filePath string) (Config, error) {

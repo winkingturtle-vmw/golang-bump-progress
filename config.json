@@ -1,94 +1,124 @@
 {
+    "ci_url": "https://ci.funtime.lol",
     "releases": [
         {
             "name": "diego (linux)",
             "url": "https://github.com/cloudfoundry/diego-release",
             "platform": "linux",
             "tas_release_name": "diego",
-            "ist_release_name": "diego"
+            "ist_release_name": "diego",
+            "ci_team": "diego",
+            "ci_pipeline": "diego-release"
         },
         {
             "name": "diego (windows)",
             "url": "https://github.com/cloudfoundry/diego-release",
             "platform": "windows",
-            "tasw_release_name": "diego"
+            "tasw_release_name": "diego",
+            "ci_team": "diego",
+            "ci_pipeline": "diego-release"
         },
         {
             "name": "cf-networking",
             "url": "https://github.com/cloudfoundry/cf-networking-release",
             "platform": "linux",
             "tas_release_name": "cf-networking",
-            "ist_release_name": "cf-networking"
+            "ist_release_name": "cf-networking",
+            "ci_team": "networking",
+            "ci_pipeline": "networking-releases"
         },
         {
             "name": "silk",
             "url": "https://github.com/cloudfoundry/silk-release",
             "platform": "linux",
             "tas_release_name": "silk",
-            "ist_release_name": "silk"
+            "ist_release_name": "silk",
+            "ci_team": "networking",
+            "ci_pipeline": "networking-releases"
         },
         {
             "name": "garden-runc (linux)",
             "url": "https://github.com/cloudfoundry/garden-runc-release",
             "platform": "linux",
             "tas_release_name": "garden-runc",
-            "ist_release_name": "garden-runc"
+            "ist_release_name": "garden-runc",
+            "ci_team": "garden-oss",
+            "ci_pipeline": "garden-runc-release"
         },
         {
             "name": "garden-runc (windows)",
             "url": "https://github.com/cloudfoundry/garden-runc-release",
             "platform": "windows",
-            "tasw_release_name": "garden-runc"
+            "tasw_release_name": "garden-runc",
+            "ci_team": "garden-oss",
+            "ci_pipeline": "garden-runc-release"
         },
         {
             "name": "nats",
             "url": "https://github.com/cloudfoundry/nats-release",
             "platform": "linux",
-            "tas_release_name": "nats"
+            "tas_release_name": "nats",
+            "ci_team": "networking",
+            "ci_pipeline": "nats-release"
         },
         {
             "name": "routing",
             "url": "https://github.com/cloudfoundry/routing-release",
             "platform": "linux",
             "tas_release_name": "routing",
-            "ist_release_name": "routing"
+            "ci_team": "networking",
+            "ci_pipeline": "routing-release"
         },
         {
             "name": "healthchecker",
             "url": "https://github.com/cloudfoundry/healthchecker-release",
-            "platform": "linux"
+            "platform": "linux",
+            "ci_team": "networking",
+            "ci_pipeline": "healthchecker-release"
         },
         {
             "name": "winc",
             "url": "https://github.com/cloudfoundry/winc-release",
             "platform": "windows",
-            "tasw_release_name": "winc"
+            "tasw_release_name": "winc",
+            "ci_team": "garden-windows",
+            "ci_pipeline": "winc"
         },
         {
             "name": "envoy-nginx",
             "url": "https://github.com/cloudfoundry/envoy-nginx-release",
             "platform": "windows",
-            "tasw_release_name": "envoy-nginx"
+            "tasw_release_name": "envoy-nginx",
+            "ci_team": "garden-windows",
+            "ci_pipeline": "envoy-nginx-release"
         },
         {
             "name": "windows2019fs",
             "url": "https://github.com/cloudfoundry/windows2019fs-release",
-            "platform": "windows"
+            "platform": "windows",
+            "ci_team": "garden-windows",
+            "ci_pipeline": "windows-rootfs"
         },
         {
             "name": "windowsfs-online",
             "url": "https://github.com/cloudfoundry/windowsfs-online-release",
-            "platform": "windows"
+            "platform": "windows",
+            "ci_team": "garden-windows",
+            "ci_pipeline": "windows-rootfs"
         },
         {
             "name": "windows-tools",
             "url": "https://github.com/cloudfoundry/windows-tools-release",
-            "platform": "windows"
+            "platform": "windows",
+            "ci_team": "garden-windows",
+            "ci_pipeline": "windows-misc"
         },
         {
             "name": "test-log-emitter",
             "url": "https://github.com/cloudfoundry/test-log-emitter-release",
             "platform": "linux",
+            "ci_team": "garden-oss",
+            "ci_pipeline": "test-log-emitter-release",
             "only_develop": true
         }
     ],

@@ -67,6 +67,8 @@ func main() {
 		pluginsTableTmpl.Execute(w, data)
 	})
 
+	http.Handle("/images/", http.StripPrefix("/images/", http.FileServer(http.Dir("./images"))))
+
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)

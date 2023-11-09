@@ -20,6 +20,8 @@ type Release struct {
 	BumpedInTas                 string
 	BumpedInTasw                string
 	BumpedInIst                 string
+	CIURL                       string
+	CIBadgeURL                  string
 	AllBumped                   bool
 }
 
@@ -112,6 +114,8 @@ func (p *releasesDataProvider) fetch(targetGoVersion string) ReleasesData {
 		data.Releases = append(data.Releases, Release{
 			Name:                        release.Name,
 			URL:                         release.URL,
+			CIURL:                       p.config.CIURL(release),
+			CIBadgeURL:                  "/images/concourse-icon.png",
 			VersionOnDev:                devVersion,
 			ReleasedVersion:             releasedVersion,
 			FirstReleasedGolangVersion:  firstVersionInfo.GolangVersion,
