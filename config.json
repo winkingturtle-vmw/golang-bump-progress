@@ -138,34 +138,6 @@
         {
             "name": "cloudfoundry/tas-runtime-mysql-8.0",
             "url": "https://hub.docker.com/r/cloudfoundry/tas-runtime-mysql-8.0"
-        },
-        {
-            "name": "cloudfoundry/garden-runc-release",
-            "url": "https://hub.docker.com/r/cloudfoundry/garden-runc-release"
-        },
-        {
-            "name": "cloudfoundry/garden-windows-ci",
-            "url": "https://hub.docker.com/r/cloudfoundry/garden-windows-ci"
-        },
-        {
-            "name": "cloudfoundry/diego-golang-ci",
-            "url": "https://hub.docker.com/r/cloudfoundry/diego-golang-ci"
-        },
-        {
-            "name": "cloudfoundry/grace",
-            "url": "https://hub.docker.com/r/cloudfoundry/grace"
-        },
-        {
-            "name": "cloudfoundry/diego-docker-app",
-            "url": "https://hub.docker.com/r/cloudfoundry/diego-docker-app"
-        },
-        {
-            "name": "cloudfoundry/diego-inigo-ci",
-            "url": "https://hub.docker.com/r/cloudfoundry/diego-inigo-ci"
-        },
-        {
-            "name": "cloudfoundry/diego-release",
-            "url": "https://hub.docker.com/r/cloudfoundry/diego-release"
         }
     ],
     "plugins": [
