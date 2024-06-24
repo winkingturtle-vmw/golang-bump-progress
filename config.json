@@ -120,6 +120,13 @@
             "ci_team": "wg-arp-garden",
             "ci_pipeline": "test-log-emitter-release",
             "only_develop": true
+        },
+        {
+            "name": "mapfs",
+            "url": "https://github.com/cloudfoundry/mapfs-release",
+            "platform": "linux",
+            "ci_team": "wg-sm-volume-services",
+            "ci_pipeline": "mapfs-release"
         }
     ],
     "images": [
